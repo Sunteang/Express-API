@@ -1,4 +1,3 @@
-
 import { Schema, model } from "mongoose";
 
 export interface IItem {
@@ -13,6 +12,6 @@ const itemSchema = new Schema({
   price: { type: Number, require: true },
 });
 
-const ItemModel = model<IItem>("item", itemSchema);
+const ItemModel = model<IItem>("items", itemSchema);
 
 export default ItemModel;
