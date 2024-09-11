@@ -41,7 +41,6 @@ esbuild
     define: {
       "process.env.NODE_ENV": '"production"',
     },
-    // Add this so that It Could Resolve the Path
     alias: {
       "@": path.resolve(__dirname, "."),
     },
