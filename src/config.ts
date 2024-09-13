@@ -12,7 +12,7 @@ type Config = {
 function loadConfig(): Config {
   // Determine the environment and set the appropriate .env file
   const env = process.env.NODE_ENV || "development";
-  const envPath = path.resolve(__dirname, `./configs/.env.${env}`);
+  const envPath = path.resolve(__dirname, `./configs/.env.${env}`); //dirname = corrent location of file
 
   console.log(`Loading environment from: ${envPath}`);
 
@@ -26,7 +26,7 @@ function loadConfig(): Config {
 
   // Define a schema for the environment variables
   const envVarsSchema = Joi.object({
-    NODE_ENV: Joi.string().valid("development", "production").required(),
+    NODE_ENV: Joi.string().required(),
     PORT: Joi.number().default(3000),
     MONGODB_URL: Joi.string().uri().required(),
   })

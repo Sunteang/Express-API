@@ -1,11 +1,12 @@
-import ItemModel, { IItem } from "../models/product.model";
+import ItemModel, { IItem } from "@/src/database/models/product.model";
 import { SortOrder } from "mongoose";
 import { ProductCreateRequest } from "@/src/controllers/types/product-request.type";
 import {
   ProductGetAllRepoParams,
   ProductSortParams,
-} from "../repositories/types/product.repository.type"; // Assuming this type exists
-import { ProductUpdateRequest } from "../../controllers/types/product-request.type";
+} from "@/src/database/repositories/types/product.repository.type"; // Assuming this type exists
+import { ProductUpdateRequest } from "@/src/controllers/types/product-request.type";
+import { NotFoundError } from "@/src/utils/errors";
 
 class ProductRepository {
   public async getAllProducts(queries: ProductGetAllRepoParams): Promise<{
@@ -77,7 +78,7 @@ class ProductRepository {
       const product = await ItemModel.findById(id);
 
       if (!product) {
-        throw new Error("Product not found!");
+        throw new NotFoundError("Product not found!");
       }
       return product;
     } catch (error) {
@@ -108,7 +109,7 @@ class ProductRepository {
       );
 
       if (!updatedProduct) {
-        throw new Error("Product not found!");
+        throw new NotFoundError("Product not found!");
       }
 
       return updatedProduct;
@@ -122,7 +123,7 @@ class ProductRepository {
       const deleteProduct = await ItemModel.findByIdAndDelete(id);
 
       if (!deleteProduct) {
-        throw new Error("Product not found!");
+        throw new NotFoundError("Product not found!");
       }
     } catch (error) {
       throw error;

@@ -19,15 +19,15 @@ esbuild
       copy({
         assets: [
           {
-            from: `../node_modules/swagger-ui-dist/*.css`,
+            from: `./node_modules/swagger-ui-dist/*.css`,
             to: "./",
           },
           {
-            from: `../node_modules/swagger-ui-dist/*.js`,
+            from: `./node_modules/swagger-ui-dist/*.js`,
             to: "./",
           },
           {
-            from: `../node_modules/swagger-ui-dist/*.png`,
+            from: `./node_modules/swagger-ui-dist/*.png`,
             to: "./",
           },
           {
@@ -51,6 +51,21 @@ esbuild
       path.resolve(__dirname, "src/docs/swagger.json"),
       path.resolve(__dirname, "build/docs/swagger.json")
     );
+
+    // Copy package.json after ensuring the build was successful
+    fs.copySync(
+      path.resolve(__dirname, "package.json"),
+      path.resolve(__dirname, "build/package.json")
+    );
+    console.log("Package.json copied successfully!");
+
+    // Copy ecosystem.config.js after ensuring the build was successful
+    fs.copySync(
+      path.resolve(__dirname, "ecosystem.config.js"),
+      path.resolve(__dirname, "build/ecosystem.config.js")
+    );
+    console.log("Ecosystem Config copied successfully!");
+
     console.log("Swagger JSON copied successfully!");
   })
   .catch((error) => {
