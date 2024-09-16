@@ -6,5 +6,5 @@ src/configs/.env.development
 src/configs/.env.production
 build/configs/.env.production
 
-/scripts/monorepo-key.pem
+/scripts/AWS-key.pem
 .DS_Store 

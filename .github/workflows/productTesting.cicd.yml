@@ -38,69 +38,102 @@ jobs:
           name: artifact-build
           path: ./build
 
-  # deploy:
-  #   runs-on: ubuntu-latest
-  #   needs: build
-  #   if: github.ref == 'refs/heads/main'
+  deploy:
+    runs-on: ubuntu-latest
+    needs: build
+    if: github.ref == 'refs/heads/main'
 
-  #   steps:
-  #     - name: Download build artifacts
-  #       uses: actions/download-artifact@v4
-  #       with:
-  #         name: artifact-build
-  #         path: ./build
+    steps:
+      - name: Download build artifacts
+        uses: actions/download-artifact@v4
+        with:
+          name: artifact-build
+          path: ./build
 
-  #     - name: Prepare Deployment Directories
-  #       uses: appleboy/ssh-action@master # SSH into the server to prepare directories
-  #       with:
-  #         host: ${{ secrets.SERVER_IP }} # Server IP address from secrets
-  #         username: ${{ secrets.SERVER_USERNAME }} # Server username from secrets
-  #         key: ${{ secrets.SSH_PRIVATE_KEY }} # SSH private key from secrets
-  #         port: 22 # SSH port, usually 22
-  #         script: |
-  #           mkdir -p /home/ubuntu/apps/build  # Change to match your desire directory structure
-  #           mkdir -p /home/ubuntu/apps/build/configs  # For additional configuration files
+      - name: Setup SSH Key
+        run: |
+          mkdir -p ~/.ssh
+          echo "${{ secrets.SSH_PRIVATE_KEY }}" | tr -d '\r' > ~/.ssh/id_rsa
+          chmod 600 ~/.ssh/id_rsa
+          ssh-keyscan -H ${{ secrets.SERVER_IP }} >> ~/.ssh/known_hosts
 
-  #     - name: Copy files to Server
-  #       uses: appleboy/scp-action@master # Copies files to the server using SCP
-  #       with:
-  #         host: ${{ secrets.SERVER_IP }}
-  #         username: ${{ secrets.SERVER_USERNAME }}
-  #         key: ${{ secrets.SSH_PRIVATE_KEY }}
-  #         port: 22
-  #         source: "./path/to/artifacts/*"
-  #         target: "/home/ubuntu/apps/build"
-  #         strip_components: 1 # Adjust based on the directory depth of the source
+      - name: Prepare Deployment Directories
+        uses: appleboy/ssh-action@master
+        with:
+          host: ${{ secrets.SERVER_IP }}
+          username: ${{ secrets.SERVER_USERNAME }}
+          key: ${{ secrets.SSH_PRIVATE_KEY }}
+          port: 22
+          script: |
+            mkdir -p /home/ubuntu/apps/build
+            mkdir -p /home/ubuntu/apps/build/configs
 
-  #     - name: Create .env File
-  #       uses: appleboy/ssh-action@master # Creates an environment variable file on the server
-  #       with:
-  #         host: ${{ secrets.SERVER_IP }}
-  #         username: ${{ secrets.SERVER_USERNAME }}
-  #         key: ${{ secrets.SSH_PRIVATE_KEY }}
-  #         port: 22
-  #         script: |
-  #           echo "NODE_ENV=production" > /path/to/deployment/directory/build/.env
-  #           echo "PORT=your_port_number" >> /path/to/deployment/directory/build/.env
-  #           echo "DATABASE_URL=your_database_url" >> /path/to/deployment/directory/build/.env
+      - name: Copy files to Server using rsync
+        run: |
+          rsync -avz -e "ssh -i ~/.ssh/id_rsa -o StrictHostKeyChecking=no" ./build/ ${{ secrets.SERVER_USERNAME }}@${{ secrets.SERVER_IP }}:/home/ubuntu/apps/build/
 
-  #     - name: Install Dependencies and Restart Application
-  #       uses: appleboy/ssh-action@master # Installs dependencies and restarts the application using a process manager
-  #       with:
-  #         host: ${{ secrets.SERVER_IP }}
-  #         username: ${{ secrets.SERVER_USERNAME }}
-  #         key: ${{ secrets.SSH_PRIVATE_KEY }}
-  #         port: 22
-  #         script: |
-  #           cd /path/to/deployment/directory/build
-  #           yarn install --production
-  #           # Assume PM2 is used, Replace with other command for other process manager
-  #           # Assume you have script for run start in production and restart in production
-  #           # Check if the PM2 process is running
-  #           if pm2 show your-service-name > /dev/null; then
-  #             echo "Application is running. Restarting..."
-  #             yarn restart
-  #           else
-  #             echo "Application is not running. Starting..."
-  #             yarn start
-  #           fi
+      - name: Create .env File
+        uses: appleboy/ssh-action@master
+        with:
+          host: ${{ secrets.SERVER_IP }}
+          username: ${{ secrets.SERVER_USERNAME }}
+          key: ${{ secrets.SSH_PRIVATE_KEY }}
+          port: 22
+          script: |
+            echo "NODE_ENV=production" > /home/ubuntu/apps/build/configs/.env.production
+            echo "PORT=${{ secrets.PORT }}" >> /home/ubuntu/apps/build/configs/.env.production
+            echo "MONGODB_URL=${{ secrets.MONGODB_URL}}" >> /home/ubuntu/apps/build/configs/.env.production
+
+      - name: Install Dependencies and Restart Application
+        uses: appleboy/ssh-action@master
+        with:
+          host: ${{ secrets.SERVER_IP }}
+          username: ${{ secrets.SERVER_USERNAME }}
+          key: ${{ secrets.SSH_PRIVATE_KEY }}
+          port: 22
+          script: |
+            # Ensure NVM is installed
+            if [ ! -f /home/ubuntu/.nvm/nvm.sh ]; then
+              echo "NVM not found. Installing NVM..."
+              curl -o- https://raw.githubusercontent.com/nvm-sh/nvm/v0.39.1/install.sh | bash
+              export NVM_DIR="/home/ubuntu/.nvm"
+              [ -s "$NVM_DIR/nvm.sh" ] && \. "$NVM_DIR/nvm.sh"
+            fi
+
+            # Load NVM
+            export NVM_DIR="/home/ubuntu/.nvm"
+            [ -s "$NVM_DIR/nvm.sh" ] && \. "$NVM_DIR/nvm.sh"
+
+            # Ensure Node.js and NPM are installed
+            if ! type node > /dev/null 2>&1; then
+              echo "Node.js not found. Installing Node.js..."
+              nvm install 20
+              nvm use 20
+              nvm alias default 20
+            fi
+
+            # Ensure Yarn and PM2 are installed
+            if ! command -v yarn &> /dev/null; then
+              echo "Yarn not found. Installing Yarn..."
+              npm install -g yarn
+            fi
+
+            if ! command -v pm2 &> /dev/null; then
+              echo "PM2 not found. Installing PM2..."
+              npm install -g pm2
+            fi
+
+            # Navigate to application directory
+            cd /home/ubuntu/apps/build
+
+            # Install production dependencies
+            yarn install --production
+
+            # Restart or start the application
+            if pm2 show product-service > /dev/null; then
+              echo "Application is running. Restarting..."
+              pm2 restart product-service
+            else
+              echo "Application is not running. Starting..."
+              pm2 start server.js --name product-service
+            fi
