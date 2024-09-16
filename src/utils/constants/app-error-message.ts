@@ -9,6 +9,6 @@ export const APP_ERROR_MESSAGE = {
   invalidEmail: "Enter a valid email address",
   existedEmail: "Email already exists", //here forgot " , "
   // Product Resource Message Error
-  productDoesntExist: "Product does not exist",
+  productDoesntExist: "Product items does not exist",
   // ...
 };
