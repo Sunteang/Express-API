@@ -5,7 +5,9 @@ async function run() {
   try {
     await connectToMongoDB();
     app.listen(3000, () => {
+      console.log("----------------------->");
       console.log("server running port 3000");
+      console.log("----------------------->");
     });
   } catch (error) {
     console.error(error);
