@@ -1,12 +1,12 @@
-import ItemModel, { IItem } from "@/src/database/models/product.model";
+import ItemModel, { IItem } from "../../database/models/product.model";
 import { SortOrder } from "mongoose";
-import { ProductCreateRequest } from "@/src/controllers/types/product-request.type";
+import { ProductCreateRequest } from "../../controllers/types/product-request.type";
 import {
   ProductGetAllRepoParams,
   ProductSortParams,
-} from "@/src/database/repositories/types/product.repository.type"; // Assuming this type exists
-import { ProductUpdateRequest } from "@/src/controllers/types/product-request.type";
-import { NotFoundError } from "@/src/utils/errors";
+} from "../../database/repositories/types/product.repository.type"; // Assuming this type exists
+import { ProductUpdateRequest } from "../../controllers/types/product-request.type";
+import { NotFoundError } from "../../utils/errors";
 
 class ProductRepository {
   public async getAllProducts(queries: ProductGetAllRepoParams): Promise<{

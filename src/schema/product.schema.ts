@@ -1,4 +1,5 @@
 import Joi from "joi";
+import { product_categoies } from "@/src/utils/constants/categories";
 
 const productCreateSchema = Joi.object({
   name: Joi.string().required().min(3).max(100).messages({
@@ -10,7 +11,7 @@ const productCreateSchema = Joi.object({
 
   category: Joi.string()
     .required()
-    .valid("electronics", "fashion", "beauty", "books", "sports")
+    .valid(...product_categoies)
     .messages({
       "string.base": "Category must be a string",
       "any.required": "Category is required",
