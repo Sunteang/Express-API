@@ -4,6 +4,7 @@ node_modules/
 # Ignore environment files
 src/configs/.env.development
 src/configs/.env.production
+src/configs/.env.test
 build/configs/.env.production
 
 /scripts/AWS-key.pem

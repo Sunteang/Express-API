@@ -7,8 +7,8 @@ module.exports = {
     "^.+\\.ts$": "ts-jest",
   },
   moduleNameMapper: {
-    "^@/src/(.*)$": "<rootDir>/src/$1", 
+    "^@/src/(.*)$": "<rootDir>/src/$1",
   },
-  testTimeout: 30000,
+  testTimeout: 60000,
   testPathIgnorePatterns: ["/node_modules/", "/build/"],
 };

@@ -1,6 +1,6 @@
-import { APP_ERROR_MESSAGE } from "@/src/utils/constants/app-error-message";
-import { HTTP_STATUS_CODE } from "@/src/utils/constants/status-code";
-import { ApplicationError } from "@/src/utils/errors";
+import { APP_ERROR_MESSAGE } from "../utils/constants/app-error-message";
+import { HTTP_STATUS_CODE } from "../utils/constants/status-code";
+import { ApplicationError } from "../utils/errors";
 import { NextFunction, Request, Response } from "express";
 
 export function globalErrorHandler(
@@ -9,6 +9,8 @@ export function globalErrorHandler(
   res: Response,
   _next: NextFunction
 ) {
+  console.log(error);
+
   //Handle error
   if (error instanceof ApplicationError) {
     const status = error.status;

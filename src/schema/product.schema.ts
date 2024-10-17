@@ -1,5 +1,5 @@
 import Joi from "joi";
-import { product_categoies } from "@/src/utils/constants/categories";
+import { product_categoies } from "../utils/constants/categories";
 
 const productCreateSchema = Joi.object({
   name: Joi.string().required().min(3).max(100).messages({

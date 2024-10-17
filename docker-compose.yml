@@ -1,34 +1,29 @@
 version: "3.8"
 services:
-  sample_backend:
-    container_name: sample_backend_container
+  backend_sample_app:
+    image: backend_sample_app:latest
+    container_name: backend_sample_app
     build:
       context: .
-      dockerfile: ./Docker/Dockerfile.dev
+      dockerfile: Dockerfile.dev
     restart: always
     ports:
       - 3000:3000
     env_file: ./src/configs/.env.development
     environment:
       - DOCKER_ENV=true
-    volumes:
-      - ./src:/app/src # HOT RELOADING, ANY CHANGE IN SRC FOLDER OUR APP WILL RESTART
-      #volumes: on the left is outside container and on the right is inside container
-
-    depends_on:
-      - mongo_db
   mongo_db:
-    image: mongo
-    container_name: mongo_db_container
-    restart: always
+    # Defines the service for the MongoDB database
+    image: mongo # Uses the official MongoDB image from Docker Hub
     ports:
-      - "27017:27017"
+      - "27017:27017" # Maps port 27017 in the container to port 27017 on the host
     environment:
-      MONGO_INITDB_ROOT_USERNAME: sunteangg
-      MONGO_INITDB_ROOT_PASSWORD: myp4ssw0rd
-      MONGO_INITDB_DATABASE: myProducts
+      MONGO_INITDB_ROOT_USERNAME: sunteangg # Sets the root username for MongoDB
+      MONGO_INITDB_ROOT_PASSWORD: myp4ssw0rd # Sets the root password for MongoDB
+      MONGO_INITDB_ROOT_DATABASE: myProducts # Specifies the initial database to create
     volumes:
-      - mongo_data:/data/db #Persists MongoDB data in a Docker volume
+      - mongo_data:/data/db # Persists MongoDB data using a named volume
 
 volumes:
-  mongo_data: #Declare variable name for volumes
+  mongo_data: # Defines a named volume for MongoDB data persistence
+

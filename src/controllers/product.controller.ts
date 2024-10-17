@@ -15,15 +15,15 @@ import {
   ProductCreateRequest,
   ProductGetAllRequest,
   ProductUpdateRequest,
-} from "@/src/controllers/types/product-request.type";
-import { IItem } from "@/src/database/models/product.model";
-import ProductService from "@/src/services/product.service";
-import productCreateSchema from "@/src/schema/product.schema";
-import validateRequest from "@/src/middlewares/validate-input";
+} from "../controllers/types/product-request.type";
+import { IItem } from "../database/models/product.model";
+import ProductService from "../services/product.service";
+import productCreateSchema from "../schema/product.schema";
+import validateRequest from "../middlewares/validate-input";
 import {
   ProductPaginatedResponse,
   ProductResponse,
-} from "@/src/controllers/types/product-response.type";
+} from "../controllers/types/product-response.type";
 
 @Route("v1/products")
 export class ProductController extends Controller {
@@ -54,6 +54,7 @@ export class ProductController extends Controller {
     try {
       const newProduct = await ProductService.createProduct(requestBody);
 
+      this.setStatus(201);
       return {
         name: newProduct.name,
         category: newProduct.category,

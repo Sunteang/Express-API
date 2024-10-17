@@ -1,5 +1,5 @@
-import app from "@/src/app";
-import connectToMongoDB from "@/src/database/connection";
+import app from "./app";
+import connectToMongoDB from "./database/connection";
 
 async function run() {
   try {

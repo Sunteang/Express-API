@@ -1,4 +1,4 @@
-import { HTTP_STATUS_CODE } from "@/src/utils/constants/status-code";
+import { HTTP_STATUS_CODE } from "../utils/constants/status-code";
 
 export class ApplicationError extends Error {
   public readonly status: number;
